@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desarmador de Módulo - Secuencias</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #121212;
+            color: #00ff66;
+            padding: 20px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #ff3333;
+            text-transform: uppercase;
+            border-bottom: 2px solid #ff3333;
+            padding-bottom: 8px;
+            margin-top: 5px;
+        }
+        .section {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 1.05em;
+            cursor: pointer;
+        }
+        input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.4);
+            accent-color: #00ff66;
+            cursor: pointer;
+        }
+        .step-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .step-label {
+            min-width: 110px;
+            font-weight: bold;
+            color: #888;
+        }
+        select {
+            background-color: #2a2a2a;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 6px;
+            font-size: 1em;
+            width: 100%;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        select:focus {
+            border-color: #00ff66;
+            outline: none;
+        }
+        button {
+            background-color: #ff3333;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 10px;
+            font-family: inherit;
+        }
+        button:hover {
+            background-color: #cc0000;
+        }
+        #resultado {
+            background-color: #000;
+            border: 2px dashed #00ff66;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            font-size: 1.15em;
+            min-height: 50px;
+        }
+        .res-step {
+            margin: 6px 0;
+            padding: 4px;
+            border-bottom: 1px solid #222;
+        }
+        .highlight {
+            color: #ffff00;
+            font-weight: bold;
+        }
+        .mode-banner {
+            color: #00bcd4;
+            font-size: 0.9em;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Desarmador de Módulo</h1>
+    
+    <div class="section">
+        <h2>1. Número de Serie</h2>
+        <label>
+            <input type="checkbox" id="condMayor6" onchange="calcularSecuencia()"> 
+            ¿Tiene un dígito mayor a 6? (7, 8, 9)
+        </label>
+        <label>
+            <input type="checkbox" id="condMenor4" onchange="calcularSecuencia()"> 
+            ¿Tiene un dígito menor a 4? (0, 1, 2, 3)
+        </label>
+    </div>
+
+    <div class="section">
+        <h2>2. Secuencia de Destellos</h2>
+        <div id="steps-inputs"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. Orden a Presionar</h2>
+        <div id="resultado">
+            Selecciona la secuencia para ver el resultado...
+        </div>
+        <button onclick="resetear()">Limpiar Todo</button>
+    </div>
+
+    <script>
+        const posiciones = {
+            "": "Seleccionar...",
+            "TL": "Arriba a la Izquierda (↖)",
+            "TR": "Arriba a la Derecha (↗)",
+            "BL": "Abajo a la Izquierda (↙)",
+            "BR": "Abajo a la Derecha (↘)"
+        };
+
+        // Generar dinámicamente las 7 casillas de selección
+        const container = document.getElementById('steps-inputs');
+        for (let i = 1; i <= 7; i++) {
+            let div = document.createElement('div');
+            div.className = 'step-container';
+            
+            let label = document.createElement('span');
+            label.className = 'step-label';
+            label.innerText = `Destello ${i}:`;
+            
+            let select = document.createElement('select');
+            select.id = `step-${i}`;
+            select.onchange = calcularSecuencia;
+            
+            for (let key in posiciones) {
+                let opt = document.createElement('option');
+                opt.value = key;
+                opt.innerText = posiciones[key];
+                select.appendChild(opt);
+            }
+            
+            div.appendChild(label);
+            div.appendChild(select);
+            container.appendChild(div);
+        }
+
+        function calcularSecuencia() {
+            const mayor6 = document.getElementById('condMayor6').checked;
+            const menor4 = document.getElementById('condMenor4').checked;
+            const resultadoDiv = document.getElementById('resultado');
+            
+            let htmlResultado = "";
+            let listo = true;
+
+            // Determinar tipo de transformación según las reglas
+            let modoTexto = "Sin cambios (Igual que los destellos)";
+            if (mayor6 && menor4) modoTexto = "Efecto Diagonal (↖ ↔ ↘ y ↗ ↔ ↙)";
+            else if (mayor6) modoTexto = "Efecto Horizontal (↖ ↔ ↗ y ↙ ↔ ↘)";
+            else if (menor4) modoTexto = "Efecto Vertical (↖ ↔ ↙ y ↗ ↔ ↘)";
+
+            htmlResultado += `<div class="mode-banner">Modo: ${modoTexto}</div>`;
+
+            // Procesar los 7 pasos
+            for (let i = 1; i <= 7; i++) {
+                const val = document.getElementById(`step-${i}`).value;
+                if (!val) {
+                    listo = false;
+                    break;
+                }
+
+                let transformado = val;
+
+                if (mayor6 && menor4) {
+                    // Ambos: Diagonal
+                    if (val === "TL") transformado = "BR";
+                    else if (val === "TR") transformado = "BL";
+                    else if (val === "BL") transformado = "TR";
+                    else if (val === "BR") transformado = "TL";
+                } else if (mayor6) {
+                    // Solo >6: Horizontal
+                    if (val === "TL") transformado = "TR";
+                    else if (val === "TR") transformado = "TL";
+                    else if (val === "BL") transformado = "BR";
+                    else if (val === "BR") transformado = "BL";
+                } else if (menor4) {
+                    // Solo <4: Vertical
+                    if (val === "TL") transformado = "BL";
+                    else if (val === "TR") transformado = "BR";
+                    else if (val === "BL") transformado = "TL";
+                    else if (val === "BR") transformado = "TR";
+                }
+
+                htmlResultado += `<div class="res-step">Paso ${i}: <span class="highlight">${posiciones[transformado]}</span></div>`;
+            }
+
+            if (!listo) {
+                resultadoDiv.innerHTML = `<div class="mode-banner">Modo: ${modoTexto}</div><span style="color:#888;">Faltan rellenar destellos...</span>`;
+            } else {
+                resultadoDiv.innerHTML = htmlResultado;
+            }
+        }
+
+        function resetear() {
+            document.getElementById('condMayor6').checked = false;
+            document.getElementById('condMenor4').checked = false;
+            for (let i = 1; i <= 7; i++) {
+                document.getElementById(`step-${i}`).value = "";
+            }
+            document.getElementById('resultado').innerHTML = "Selecciona la secuencia para ver el resultado...";
+        }
+    </script>
+</body>
+</html>

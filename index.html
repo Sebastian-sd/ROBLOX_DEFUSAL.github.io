@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - KTANE</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #121212;
+            color: #00ff66;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #ff3333;
+            text-transform: uppercase;
+            border-bottom: 2px solid #ff3333;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+        }
+        p {
+            text-align: center;
+            color: #888;
+        }
+        .modulo-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        /* Convertimos los enlaces en bloques estilo botón */
+        .modulo-link {
+            text-decoration: none;
+            color: inherit;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            padding: 18px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modulo-link:hover {
+            border-color: #00ff66;
+            background-color: #1a2e1a;
+            transform: scale(1.01);
+        }
+        .modulo-info strong {
+            font-size: 1.1em;
+            color: #00ff66;
+        }
+        .modulo-desc {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 5px;
+        }
+        .modulo-status {
+            font-size: 0.8em;
+            background-color: #333;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: #aaa;
+            font-weight: bold;
+        }
+        .modulo-link:hover .modulo-status {
+            background-color: #00ff66;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Manual Interactivo de Desactivación</h1>
+    <p>Selecciona el módulo activo en la bomba para cargar el script:</p>
+    
+    <div class="modulo-lista">
+        <a href="simon_dice.html" class="modulo-link">
+            <div class="modulo-info">
+                <strong>🔴 MODULO SIMON DICE</strong>
+            </div>
+            <span class="modulo-status">ABRIR</span>
+        </a>
+        
+        <a href="teclado.html" class="modulo-link">
+            <div class="modulo-info">
+                <strong>🔴 MODULO TECLADO</strong>
+            </div>    
+            <span class="modulo-status">ABRIR</span>
+        </a>
+
+         <a href="Divisivilidad.html" class="modulo-link">
+            <div class="modulo-info">
+                <strong>🔴 MODULO DIVISIBILIDAD</strong>
+            </div>    
+            <span class="modulo-status">ABRIR</span>
+        </a>
+
+    </div>
+
+</body>
+</html>

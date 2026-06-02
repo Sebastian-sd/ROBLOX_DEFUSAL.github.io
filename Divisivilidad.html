@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo Diagrama de Venn - Calculador</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #121212;
+            color: #00ff66;
+            padding: 20px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        /* BOTÓN VOLVER */
+        .btn-volver {
+            display: inline-block;
+            text-decoration: none;
+            color: #888;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+        }
+        .btn-volver:hover {
+            color: #fff;
+            background-color: #333;
+            border-color: #888;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #ff3333;
+            text-transform: uppercase;
+            border-bottom: 2px solid #ff3333;
+            padding-bottom: 8px;
+            margin-top: 5px;
+        }
+        .section {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        input[type="number"] {
+            background-color: #2a2a2a;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 12px;
+            font-size: 1.4em;
+            border-radius: 4px;
+            font-family: inherit;
+            text-align: center;
+            flex-grow: 1;
+        }
+        input[type="number"]:focus {
+            border-color: #00ff66;
+            outline: none;
+        }
+        .btn-action {
+            background-color: #00ff66;
+            color: #000;
+            border: none;
+            padding: 0 20px;
+            font-size: 1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        .btn-action:hover {
+            background-color: #00cc55;
+        }
+        
+        /* CHECKLIST DE DIVISIBILIDAD */
+        .check-list {
+            margin: 15px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .check-item {
+            background-color: #181818;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            font-size: 0.95em;
+        }
+        .check-item.true {
+            border-color: #00ff66;
+            color: #00ff66;
+        }
+        .check-item.false {
+            border-color: #555;
+            color: #555;
+        }
+
+        /* LETRA GRANDE DE RESPUESTA */
+        #resultado-letra {
+            font-size: 4.5em;
+            font-weight: bold;
+            color: #ffff00;
+            text-align: center;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.4);
+        }
+
+        /* HISTORIAL DE ETAPAS */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .history-table th, .history-table td {
+            border: 1px solid #333;
+            padding: 10px;
+            text-align: center;
+        }
+        .history-table th {
+            background-color: #222;
+            color: #ff3333;
+            font-size: 0.9em;
+        }
+        .btn-reset {
+            background-color: #ff3333;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 0.9em;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: inherit;
+            margin-top: 15px;
+        }
+        .btn-reset:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="btn-volver">⬅ Volver al Menú</a>
+
+    <h1>Módulo de Divisibilidad (Venn)</h1>
+
+    <div class="section">
+        <h2>1. Número en Pantalla</h2>
+        <div class="input-container">
+            <input type="number" id="numeroBomba" placeholder="Ej. 1045" oninput="procesarNumero()" autofocus>
+            <button class="btn-action" onclick="guardarEtapa()">Fijar Etapa</button>
+        </div>
+
+        <div class="check-list">
+            <div id="chk-2" class="check-item false"> Divisible por 2 (Línea Continua)</div>
+            <div id="chk-3" class="check-item false"> Divisible por 3 (Línea Puntos)</div>
+            <div id="chk-5" class="check-item false"> Divisible por 5 (Línea Raya-Punto)</div>
+            <div id="chk-7" class="check-item false"> Divisible por 7 (Línea Rayas)</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. Botón a Presionar</h2>
+        <div id="resultado-letra">--</div>
+    </div>
+
+    <div class="section">
+        <h2>3. Registro de Etapas (Son 3)</h2>
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Etapa</th>
+                    <th>Número</th>
+                    <th>Botón a Pulsar</th>
+                </tr>
+            </thead>
+            <tbody id="historial-cuerpo">
+                <tr><td colspan="3" style="color: #666;">No hay etapas registradas aún.</td></tr>
+            </tbody>
+        </table>
+        <button class="btn-reset" onclick="reiniciarTodo()">Resetear Módulo</button>
+    </div>
+
+    <script>
+        // Mapeo completo de las 16 regiones del Diagrama de Venn de 4 elipses
+        // Formato de la clave binaria: [Divisible por 2][Divisible por 3][Divisible por 5][Divisible por 7]
+        const mapaVenn = {
+            "0000": "F", // Fuera de todas
+            "1000": "A", // Solo 2
+            "0100": "D", // Solo 3
+            "0010": "B", // Solo 5
+            "0001": "F", // Solo 7
+            "1100": "B", // 2 y 3
+            "0110": "B", // 3 y 5
+            "0011": "E", // 5 y 7
+            "1001": "E", // 2 y 7
+            "1010": "A", // 2 y 5
+            "0101": "C", // 3 y 7
+            "1110": "C", // 2, 3 y 5
+            "0111": "C", // 3, 5 y 7
+            "1011": "A", // 2, 5 y 7
+            "1101": "E", // 2, 3 y 7
+            "1111": "D"  // Divisible por todas (Centro)
+        };
+
+        let etapaActual = 1;
+
+        function procesarNumero() {
+            const input = document.getElementById('numeroBomba').value;
+            const letraDiv = document.getElementById('resultado-letra');
+            
+            if (!input || isNaN(input)) {
+                letraDiv.innerText = "--";
+                actualizarFiltrosVisuales(false, false, false, false);
+                return "";
+            }
+
+            const num = parseInt(input);
+
+            // Cálculos usando operador de residuo (%)
+            const div2 = (num % 2 === 0);
+            const div3 = (num % 3 === 0);
+            const div5 = (num % 5 === 0);
+            const div7 = (num % 7 === 0);
+
+            actualizarFiltrosVisuales(div2, div3, div5, div7);
+
+            // Crear clave binaria de búsqueda de la región
+            const clave = `${div2?1:0}${div3?1:0}${div5?1:0}${div7?1:0}`;
+            const letraGanadora = mapaVenn[clave] || "F";
+
+            letraDiv.innerText = letraGanadora;
+            return letraGanadora;
+        }
+
+        function actualizarFiltrosVisuales(d2, d3, d5, d7) {
+            marcarFiltro('chk-2', d2);
+            marcarFiltro('chk-3', d3);
+            marcarFiltro('chk-5', d5);
+            marcarFiltro('chk-7', d7);
+        }
+
+        function marcarFiltro(id, cumple) {
+            const el = document.getElementById(id);
+            if (cumple) {
+                el.className = "check-item true";
+                el.innerText = el.innerText.replace("❌ ", "").replace("✔️ ", "") ;
+                el.innerText = "✔️ " + el.innerText;
+            } else {
+                el.className = "check-item false";
+                el.innerText = el.innerText.replace("❌ ", "").replace("✔️ ", "") ;
+                el.innerText = "❌ " + el.innerText;
+            }
+        }
+
+        function guardarEtapa() {
+            const inputVal = document.getElementById('numeroBomba').value;
+            const letraVal = document.getElementById('resultado-letra').innerText;
+
+            if (!inputVal || letraVal === "--" || etapaActual > 3) return;
+
+            const tabla = document.getElementById('historial-cuerpo');
+            
+            // Limpiar fila de marcador de posición vacío si es la primera etapa
+            if (etapaActual === 1) {
+                tabla.innerHTML = "";
+            }
+
+            // Insertar nueva fila histórica
+            const fila = `<tr>
+                <td><strong>Etapa ${etapaActual}</strong></td>
+                <td>${inputVal}</td>
+                <td style="color:#ffff00; font-weight:bold; font-size:1.2em;">${letraVal}</td>
+            </tr>`;
+            
+            tabla.innerHTML += fila;
+            etapaActual++;
+
+            // Limpiar entrada para agilizar la siguiente etapa
+            document.getElementById('numeroBomba').value = "";
+            document.getElementById('resultado-letra').innerText = "--";
+            actualizarFiltrosVisuales(false, false, false, false);
+            document.getElementById('numeroBomba').focus();
+        }
+
+        function reiniciarTodo() {
+            etapaActual = 1;
+            document.getElementById('numeroBomba').value = "";
+            document.getElementById('resultado-letra').innerText = "--";
+            document.getElementById('historial-cuerpo').innerHTML = `<tr><td colspan="3" style="color: #666;">No hay etapas registradas aún.</td></tr>`;
+            actualizarFiltrosVisuales(false, false, false, false);
+        }
+    </script>
+</body>
+</html>
