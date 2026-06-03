@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo Cifrado César - Calculador</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #121212;
+            color: #00ff66;
+            padding: 20px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        /* BOTÓN VOLVER */
+        .btn-volver {
+            display: inline-block;
+            text-decoration: none;
+            color: #888;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+        }
+        .btn-volver:hover {
+            color: #fff;
+            background-color: #333;
+            border-color: #888;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #ff3333;
+            text-transform: uppercase;
+            border-bottom: 2px solid #ff3333;
+            padding-bottom: 8px;
+            margin-top: 5px;
+        }
+        .section {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            background-color: #2a2a2a;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px;
+            font-size: 1.2em;
+            border-radius: 4px;
+            font-family: inherit;
+            text-transform: uppercase;
+        }
+        input[type="text"]:focus {
+            border-color: #00ff66;
+            outline: none;
+        }
+        
+        /* CUADRO DE VARIABLE DESPLAZAMIENTO */
+        .shift-badge {
+            background-color: #181818;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1em;
+            color: #00bcd4;
+            margin-bottom: 15px;
+        }
+
+        /* PALABRA DESCIFRADA FINAL */
+        #resultado-word {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: #ffff00;
+            text-align: center;
+            letter-spacing: 4px;
+            margin: 15px 0;
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
+            background-color: #000;
+            padding: 10px;
+            border: 2px dashed #ffff00;
+            border-radius: 6px;
+        }
+
+        .btn-reset {
+            background-color: #ff3333;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: inherit;
+        }
+        .btn-reset:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="btn-volver">⬅ Volver al Menú</a>
+
+    <h1>Descifrador César</h1>
+
+    <div class="section">
+        <h2>1. Datos del Turno (Shift)</h2>
+        
+        <div class="form-group">
+            <label>Número de Serie de la Bomba</label>
+            <input type="text" id="serialInput" placeholder="Ej. 1A2B3C" oninput="calcularTurno()">
+        </div>
+
+        <div id="shiftDisplay" class="shift-badge">
+            Suma: 0 ➔ Desplazamiento (Turno): 0
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. Desencriptar Palabra</h2>
+        
+        <div class="form-group">
+            <label>Palabra Cifrada (La que muestra el módulo)</label>
+            <input type="text" id="cipherInput" placeholder="Escribe la palabra aquí..." oninput="descifrarCesar()">
+        </div>
+
+        <p style="text-align: center; font-size: 0.85em; color: #888; margin: 5px 0 0 0;">Palabra Original a Enviar:</p>
+        <div id="resultado-word">------</div>
+
+        <button class="btn-reset" onclick="limpiarTodo()">Limpiar Pantalla</button>
+    </div>
+
+    <script>
+        const alfabeto = "abcdefghijklmnopqrstuvwxyz";
+        let turnoActual = 0;
+
+        function calcularTurno() {
+            const serial = document.getElementById('serialInput').value;
+            
+            // Extraer todos los dígitos numéricos del número de serie
+            const digitos = serial.match(/\d/g);
+            let suma = 0;
+
+            if (digitos) {
+                suma = digitos.reduce((acc, val) => acc + parseInt(val), 0);
+            }
+
+            // Aplicar la regla: si es mayor a 25, el turno se repite (módulo 26)
+            turnoActual = suma % 26;
+
+            // Actualizar interfaz del estado del turno
+            document.getElementById('shiftDisplay').innerHTML = `Suma total: <strong>${suma}</strong> ➔ Desplazamiento Neto: <strong style="color:#ffff00;">${turnoActual}</strong>`;
+            
+            // Re-calcular la palabra de inmediato si ya había texto escrito
+            descifrarCesar();
+        }
+
+        function descifrarCesar() {
+            const palabraCifrada = document.getElementById('cipherInput').value.toLowerCase();
+            const outputDiv = document.getElementById('resultado-word');
+
+            if (!palabraCifrada) {
+                outputDiv.innerText = "------";
+                return;
+            }
+
+            let palabraOriginal = "";
+
+            for (let i = 0; i < palabraCifrada.length; i++) {
+                let char = palabraCifrada[i];
+                let indiceActual = alfabeto.indexOf(char);
+
+                if (indiceActual !== -1) {
+                    // Desplazar hacia la izquierda (atrás en el alfabeto)
+                    let nuevoIndice = (indiceActual - turnoActual) % 26;
+                    
+                    // Manejar residuos negativos en javascript
+                    if (nuevoIndice < 0) {
+                        nuevoIndice += 26;
+                    }
+                    
+                    palabraOriginal += alfabeto[nuevoIndice];
+                } else {
+                    // Mantener caracteres extraños si los hubiera
+                    palabraOriginal += char;
+                }
+            }
+
+            // Mostrar el resultado final en mayúsculas para leerlo claramente
+            outputDiv.innerText = palabraOriginal.toUpperCase();
+        }
+
+        function limpiarTodo() {
+            document.getElementById('serialInput').value = "";
+            document.getElementById('cipherInput').value = "";
+            document.getElementById('shiftDisplay').innerHTML = "Suma: 0 ➔ Desplazamiento (Turno): 0";
+            document.getElementById('resultado-word').innerText = "------";
+            turnoActual = 0;
+        }
+    </script>
+</body>
+</html>
